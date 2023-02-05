@@ -14,6 +14,7 @@ import java.util.Collection;
 import clases.Carta;
 import clases.Hechizo;
 import clases.Jugador;
+import clases.Partida;
 import clases.Unidad;
 import utils.MyObjectOutputStream;
 import utils.Utils;
@@ -46,9 +47,10 @@ public class Main {
 				eliminarJugador(fichJugadores);
 				break;
 			case 5:
-
+				anniadirPartidas(fichJugadores);
 				break;
 			case 6:
+				listarPartidas(fichJugadores);
 				break;
 			case 7:
 				break;
@@ -64,7 +66,70 @@ public class Main {
 			}
 		} while (!salir);
 	}
-
+	
+	private static void listarPartidas(File fichJugadores) {
+		// TODO Auto-generated method stub
+		/*
+		 * if(aux.getNickname().equalsIgnoreCase(nickSearch)) { for(Partida e:
+		 * aux.getPartidas().values()) { e.mostrar(); } }
+		 */
+	}
+	
+	private static void anniadirPartidas(File fichJugadores) {
+		// TODO Auto-generated method stub
+		File auxFile = new File("auxFile.dat");
+		int max = Utils.calculoFichero(fichJugadores);
+		String nickSearch;
+		ObjectInputStream ois = null;
+		ObjectOutputStream oos = null;
+		Jugador aux = new Jugador();
+		boolean found=false;
+		System.out.println("Introduzca el nick del jugador al que desea añadir la partida");
+		nickSearch = Utils.introducirCadena();
+		try {
+			ois = new ObjectInputStream(new FileInputStream(fichJugadores));
+			oos = new ObjectOutputStream(new FileOutputStream(auxFile));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i = 0; i < max; i++) {
+			try {
+				aux = (Jugador) ois.readObject();
+			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
+				found = true;
+				Partida auxPart = new Partida();
+				auxPart.setDatos();
+				aux.getPartidas().put(auxPart.getFechaPartida(), auxPart);
+			}
+			try {
+				oos.writeObject(aux);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(!found) {
+			System.err.println("No se han encontrado coincidencias");
+		}else {
+			System.out.println("Partida añadida con exito");
+			fichJugadores.delete();
+			auxFile.renameTo(fichJugadores);
+		}
+		try {
+			ois.close();
+			oos.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	private static void annadirJugador(File fichJugadores, File fichCartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
