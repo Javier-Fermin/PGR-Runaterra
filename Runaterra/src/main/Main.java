@@ -73,9 +73,9 @@ public class Main {
 	}
 
 	private static void listarPartidas(File fichJugadores) {
-		// TODO Auto-generated method stub
+		// Variables
 		int max = Utils.calculoFichero(fichJugadores);
-		boolean found=false;
+		boolean found = false;
 		ObjectInputStream ois = null;
 		Jugador aux = new Jugador();
 		try {
@@ -84,50 +84,60 @@ public class Main {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		// We ask if the user wants to filter the search or not
 		if (Utils.confirmacion("Desea filtrar las partidas?\nS para Si\nN para No")) {
-			
+			// In case they want to filter it:
+			// Variables
 			ArrayList<Character> letras = new ArrayList<Character>(Arrays.asList('I', 'F'));
 			char opc;
-			System.out.println("Introduzca alguna de las siguientes opciones\nI para filtrar por ID\nF para filtrar por fecha");
+			// We ask what kind of filter does the user wants to apply
+			System.out.println(
+					"Introduzca alguna de las siguientes opciones\nI para filtrar por ID\nF para filtrar por fecha");
 			opc = Utils.leerChar(letras);
 			switch (opc) {
 			case 'I':
+				// If he wants to filter by the ID of the game
+				// Variables
 				String idSearch;
-				
+				// We ask for the game ID
 				System.out.println("Introduzca la ID de la partida");
-				idSearch=Utils.introducirCadena();
-				for(int i=0;i<max;i++) {
+				idSearch = Utils.introducirCadena();
+				// Now we go through our file of players
+				for (int i = 0; i < max && !found; i++) {
 					try {
 						aux = (Jugador) ois.readObject();
 					} catch (ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					for(Partida e:aux.getPartidas().values()) {
-						if(e.getIdPartida().equalsIgnoreCase(idSearch)) {
-							e.mostrar();
-							found = true;
-						}
+					if (aux.getPartidas().containsKey(idSearch)) {
+						aux.getPartidas().get(idSearch).mostrar();
+						found = true;
 					}
 				}
 				break;
 			case 'F':
+				// If he wants to filter it by the date of the game
+				// Variables
 				LocalDate fechSearch;
+				// We ask for the date of the game
 				System.out.println("Introduzca la fecha (AAAA/MM/DD) de la partida");
-				fechSearch=Utils.leerFechaAMD();
-				for(int i=0;i<max;i++) {
+				fechSearch = Utils.leerFechaAMD();
+				// Now we go through our file of players
+				for (int i = 0; i < max; i++) {
 					try {
 						aux = (Jugador) ois.readObject();
 					} catch (ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					if(aux.getPartidas().containsKey(fechSearch)) {
-						aux.getPartidas().get(fechSearch).mostrar();
-						found = true;
-					}else {
-						
+					// If the player has a game on the asked date
+					for (Partida e : aux.getPartidas().values()) {
+						if (e.getFechaPartida().equals(fechSearch)) {
+							// We show the game
+							e.mostrar();
+							found = true;
+						}
 					}
 				}
 				break;
@@ -149,7 +159,7 @@ public class Main {
 				}
 			}
 		}
-		if(!found) {
+		if (!found) {
 			System.err.println("No se han encontrado coincidencias");
 		}
 		try {
@@ -189,7 +199,7 @@ public class Main {
 				found = true;
 				Partida auxPart = new Partida();
 				auxPart.setDatos();
-				aux.getPartidas().put(auxPart.getFechaPartida(), auxPart);
+				aux.getPartidas().put(auxPart.getIdPartida(), auxPart);
 			}
 			try {
 				oos.writeObject(aux);
