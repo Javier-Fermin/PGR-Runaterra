@@ -48,7 +48,10 @@ public class Partida {
 	}
 	public void mostrar() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("ID de partida: "+this.idPartida);
+		System.out.println("Ganador: "+this.nickWinner);
+		System.out.println("Perdedor: "+this.nickLosser);
+		System.out.println("Fecha de la partida: "+this.fechaPartida.toString());
 	}
 	
 	
