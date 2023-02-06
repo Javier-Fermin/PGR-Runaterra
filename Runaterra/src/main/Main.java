@@ -58,6 +58,7 @@ public class Main {
 				modificarCarta(fichCartas);
 				break;
 			case 9:
+				listarCarta(fichCartas);
 				break;
 			case 10:
 				break;
