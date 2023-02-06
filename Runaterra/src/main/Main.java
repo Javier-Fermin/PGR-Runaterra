@@ -110,6 +110,8 @@ public class Main {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					// IF the player has a game with the desired ID we show it, and since IDs are
+					// unique we use a flag to stop the search
 					if (aux.getPartidas().containsKey(idSearch)) {
 						aux.getPartidas().get(idSearch).mostrar();
 						found = true;
@@ -146,6 +148,8 @@ public class Main {
 				break;
 			}
 		} else {
+			// In case the user doesn't want to filter the search, we just go through out
+			// players file
 			for (int i = 0; i < max; i++) {
 				try {
 					aux = (Jugador) ois.readObject();
@@ -153,12 +157,15 @@ public class Main {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				// And here we go through every player games showing all of them
 				for (Partida e : aux.getPartidas().values()) {
 					e.mostrar();
 					found = true;
 				}
 			}
 		}
+		// In case there were not matches or not even a single game we show an error
+		// message
 		if (!found) {
 			System.err.println("No se han encontrado coincidencias");
 		}
@@ -172,6 +179,7 @@ public class Main {
 
 	private static void anniadirPartidas(File fichJugadores) {
 		// TODO Auto-generated method stub
+		// Variables
 		File auxFile = new File("auxFile.dat");
 		int max = Utils.calculoFichero(fichJugadores);
 		String nickSearch;
@@ -179,6 +187,7 @@ public class Main {
 		ObjectOutputStream oos = null;
 		Jugador aux = new Jugador();
 		boolean found = false;
+		// We ask for the nickname of the player that we want to add a game to
 		System.out.println("Introduzca el nick del jugador al que desea añadir la partida");
 		nickSearch = Utils.introducirCadena();
 		try {
@@ -188,6 +197,7 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// Here we go through the players file looking for the player by the nickname
 		for (int i = 0; i < max; i++) {
 			try {
 				aux = (Jugador) ois.readObject();
@@ -195,7 +205,10 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			// We look if the player has the nickname that the user is looking for
 			if (!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
+				// In case it is the desired player we add a mew game into his games and we turn
+				// a flag to stop searching
 				found = true;
 				Partida auxPart = new Partida();
 				auxPart.setDatos();
@@ -208,9 +221,12 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+		// Finally if there were no matches we show a error message
 		if (!found) {
 			System.err.println("No se han encontrado coincidencias");
 		} else {
+			// Otherwise we show a message to let the user know that the change has been
+			// done successfully
 			System.out.println("Partida añadida con exito");
 			fichJugadores.delete();
 			auxFile.renameTo(fichJugadores);
