@@ -8,7 +8,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import clases.Carta;
@@ -26,7 +28,7 @@ public class Main {
 		int opc;
 		File fichJugadores = new File("jugadores.dat");
 		File fichCartas = new File("cartas.dat");
-		boolean salir=false;
+		boolean salir = false;
 		do {
 			System.out.println("Elige una opción:\n" + "\t1.  Añadir un jugador\n" + "\t2.  Modificar un jugador\n"
 					+ "\t3.  Listar jugadores\n" + "\t4.  Eliminar un jugador\n" + "\t5.  Añadir una partida\n"
@@ -63,18 +65,101 @@ public class Main {
 			case 11:
 				salir = Utils.confirmacion("Desea salir?\nS para Si\nN para No");
 				break;
+			default:
+				System.err.println("La opcion introducida no es valida");
+				break;
 			}
 		} while (!salir);
 	}
-	
+
 	private static void listarPartidas(File fichJugadores) {
 		// TODO Auto-generated method stub
-		/*
-		 * if(aux.getNickname().equalsIgnoreCase(nickSearch)) { for(Partida e:
-		 * aux.getPartidas().values()) { e.mostrar(); } }
-		 */
+		int max = Utils.calculoFichero(fichJugadores);
+		boolean found=false;
+		ObjectInputStream ois = null;
+		Jugador aux = new Jugador();
+		try {
+			ois = new ObjectInputStream(new FileInputStream(fichJugadores));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		if (Utils.confirmacion("Desea filtrar las partidas?\nS para Si\nN para No")) {
+			
+			ArrayList<Character> letras = new ArrayList<Character>(Arrays.asList('I', 'F'));
+			char opc;
+			System.out.println("Introduzca alguna de las siguientes opciones\nI para filtrar por ID\nF para filtrar por fecha");
+			opc = Utils.leerChar(letras);
+			switch (opc) {
+			case 'I':
+				String idSearch;
+				
+				System.out.println("Introduzca la ID de la partida");
+				idSearch=Utils.introducirCadena();
+				for(int i=0;i<max;i++) {
+					try {
+						aux = (Jugador) ois.readObject();
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					for(Partida e:aux.getPartidas().values()) {
+						if(e.getIdPartida().equalsIgnoreCase(idSearch)) {
+							e.mostrar();
+							found = true;
+						}
+					}
+				}
+				break;
+			case 'F':
+				LocalDate fechSearch;
+				System.out.println("Introduzca la fecha (AAAA/MM/DD) de la partida");
+				fechSearch=Utils.leerFechaAMD();
+				for(int i=0;i<max;i++) {
+					try {
+						aux = (Jugador) ois.readObject();
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if(aux.getPartidas().containsKey(fechSearch)) {
+						aux.getPartidas().get(fechSearch).mostrar();
+						found = true;
+					}else {
+						
+					}
+				}
+				break;
+			default:
+				System.err.println("La opcion introducida no es valida");
+				break;
+			}
+		} else {
+			for (int i = 0; i < max; i++) {
+				try {
+					aux = (Jugador) ois.readObject();
+				} catch (ClassNotFoundException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				for (Partida e : aux.getPartidas().values()) {
+					e.mostrar();
+					found = true;
+				}
+			}
+		}
+		if(!found) {
+			System.err.println("No se han encontrado coincidencias");
+		}
+		try {
+			ois.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	
+
 	private static void anniadirPartidas(File fichJugadores) {
 		// TODO Auto-generated method stub
 		File auxFile = new File("auxFile.dat");
@@ -83,7 +168,7 @@ public class Main {
 		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
 		Jugador aux = new Jugador();
-		boolean found=false;
+		boolean found = false;
 		System.out.println("Introduzca el nick del jugador al que desea añadir la partida");
 		nickSearch = Utils.introducirCadena();
 		try {
@@ -100,7 +185,7 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
+			if (!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
 				found = true;
 				Partida auxPart = new Partida();
 				auxPart.setDatos();
@@ -113,9 +198,9 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		if(!found) {
+		if (!found) {
 			System.err.println("No se han encontrado coincidencias");
-		}else {
+		} else {
 			System.out.println("Partida añadida con exito");
 			fichJugadores.delete();
 			auxFile.renameTo(fichJugadores);
@@ -127,9 +212,9 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	private static void annadirJugador(File fichJugadores, File fichCartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
@@ -366,11 +451,13 @@ public class Main {
 
 	private static void eliminarJugador(File fichJugadores) {
 	}
+
 	private static void aniadirCarta(File cartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream moos = null;
-		
-		//Si el archivo de cartas ya existe, se calcula el numero de cartas para que al crearla se anada ese numero como id de carta
+
+		// Si el archivo de cartas ya existe, se calcula el numero de cartas para que al
+		// crearla se anada ese numero como id de carta
 		if (cartas.exists()) {
 			try {
 				fos = new FileOutputStream(cartas, true);
@@ -378,23 +465,25 @@ public class Main {
 				int numeroCartas = Utils.calculoFichero(cartas);
 				do {
 					System.out.println("¿Qué tipo de carta quieres? (1- Unidad, 2- Hechizo)");
-					int tipoCarta = Utils.leerIntMinMax(1,2);
+					int tipoCarta = Utils.leerIntMinMax(1, 2);
 					Carta c = new Carta();
-					if (tipoCarta == 1) c = new Unidad();
-					if (tipoCarta == 2) c = new Hechizo();
+					if (tipoCarta == 1)
+						c = new Unidad();
+					if (tipoCarta == 2)
+						c = new Hechizo();
 					//
-					//Revisar codigo a partir de aqui dependiendo del tipo de carta
+					// Revisar codigo a partir de aqui dependiendo del tipo de carta
 					//
 					c.setDatos(++numeroCartas);
 					//
-					//Añadir ArrayList de efectos a la carta
+					// Añadir ArrayList de efectos a la carta
 					//
 					try {
 						moos.writeObject(c);
 					} catch (IOException e) {
 						System.out.println("Input/Output error");
-					}	
-				} while (Utils.esBoolean("Quieres introducir más socios?"));			
+					}
+				} while (Utils.esBoolean("Quieres introducir más socios?"));
 			} catch (FileNotFoundException e) {
 				System.out.println("File not found.");
 			} catch (IOException e) {
@@ -432,7 +521,7 @@ public class Main {
 		int opc;
 		Carta carta = null;
 		boolean encontrado = false;
-		
+
 		System.out.println("Introduce el id de la carta que deseas modificar.");
 		int id = Utils.leerInt();
 		if (cartas.exists()) {
@@ -440,7 +529,7 @@ public class Main {
 			FileInputStream fis = null;
 			ObjectInputStream ois = null;
 			ObjectOutputStream oos = null;
-					
+
 			try {
 				ois = new ObjectInputStream(new FileInputStream(cartas));
 			} catch (FileNotFoundException e) {
@@ -450,8 +539,8 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			//Se busca en el fichero una id correspondiente a la solicitada por el usuario
+
+			// Se busca en el fichero una id correspondiente a la solicitada por el usuario
 			for (int i = 0; i < numeroCartas && !encontrado; i++) {
 				try {
 					carta = (Carta) ois.readObject();
@@ -462,15 +551,16 @@ public class Main {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//Al encontrar la carta, se pregunta que dato desea modificar
-				if (carta.getId()==id) {			
+				// Al encontrar la carta, se pregunta que dato desea modificar
+				if (carta.getId() == id) {
 					do {
 						System.out.println("¿Qué desea modificar?\\n\" + \"\\t1. Mana\\n\" + \"\\t2. Daño\\n\"\r\n"
 								+ "					+ \"\\t3. Descripcion\\n\" + \"\\t4. Efectos\\n\t5. Salir\\n");
 						opc = Utils.leerIntMinMax(1, 6);
 						switch (opc) {
 						case 1:
-							//Se lee el dato introducido y se introduce en el objeto y posteriormente en el fichero
+							// Se lee el dato introducido y se introduce en el objeto y posteriormente en el
+							// fichero
 							int manaIntroducido = Utils.leerInt();
 							((Carta) carta).setMana(manaIntroducido);
 							try {
@@ -486,42 +576,28 @@ public class Main {
 							break;
 						case 4:
 							break;
-					
+
 						case 5:
-							//Modificar esCampeon (Unidad)
+							// Modificar esCampeon (Unidad)
 							break;
 						case 6:
-							//Modificar tipo (Hechizo)
+							// Modificar tipo (Hechizo)
 							break;
-							}
+						}
 					} while (opc != 7);
 					encontrado = true;
 				}
 			}
 
-			/*String linea;
-			try {
-				linea = ois.readLine();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			while (linea != null) {
-				linea = ois.readLine();
-			}
-			try {
-				carta = (Carta) ois.readObject();
-
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println(carta.toString());
-*/
-			
+			/*
+			 * String linea; try { linea = ois.readLine(); } catch (IOException e1) { //
+			 * TODO Auto-generated catch block e1.printStackTrace(); } while (linea != null)
+			 * { linea = ois.readLine(); } try { carta = (Carta) ois.readObject();
+			 * 
+			 * } catch (ClassNotFoundException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch
+			 * block e.printStackTrace(); } System.out.println(carta.toString());
+			 */
 
 		} else {
 			System.out.println("Aún no existen cartas almacenadas.");
