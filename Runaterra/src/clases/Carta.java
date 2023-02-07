@@ -2,8 +2,6 @@ package clases;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import utils.Util;
 import utils.Utils;
 
 public class Carta implements Serializable {
@@ -89,14 +87,14 @@ public class Carta implements Serializable {
 		System.out.println("Introduce la descripcion de la carta: ");
 		this.descripcion = Utils.introducirCadena();
 		System.out.println("¿Desea introducir algún efecto?");
-		if(Util.esBoolean()) {
+		if(Utils.esBoolean()) {
 			boolean seguir = true;
 			do {
 				System.out.println("Escriba el nombre del efecto a continuación:");
 				//Se añade el efecto a la coleccion de posibles efectos
-				efectos.add(Util.leerString());
+				efectos.add(Utils.leerString());
 				System.out.println("¿Desea añadir otro efecto?");
-				if (!Util.esBoolean()) seguir = false;
+				if (!Utils.esBoolean()) seguir = false;
 			} while (seguir != false);
 		}
 	}

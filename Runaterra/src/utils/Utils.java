@@ -13,6 +13,40 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class Utils {
+	public static boolean esBoolean() {
+		String respu;
+		do {
+			respu = leerString().toLowerCase();
+		} while (!respu.equals("0") && !respu.equals("1") && !respu.equals("si") && !respu.equals("no")
+				&& !respu.equals("s") && !respu.equals("n") && !respu.equals("true") && !respu.equals("false"));
+		if (respu.equals("1") || respu.equals("si") || respu.equals("s") || respu.equals("true")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	public static int leerInt(int min, int max) {
+		int num = min;
+		boolean error;
+
+		do {
+			error = false;
+
+			try {
+				num = Integer.parseInt(leerString());
+			} catch (NumberFormatException exc) {
+				System.err.println("Error; non-numeric value. Please try again:");
+				error = true;
+			}
+
+			if (num < min || num > max) {
+				System.err.println("Error; nº out of range. Please enter a nº between " + min + " and " + max + ":");
+				error = true;
+			}
+		} while (error);
+
+		return num;
+	}
 	public static String leerString(int x) {
 		String cadena = null;
 		boolean error;

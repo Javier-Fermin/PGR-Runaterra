@@ -19,7 +19,6 @@ import clases.Jugador;
 import clases.Partida;
 import clases.Unidad;
 import utils.MyObjectOutputStream;
-import utils.Util;
 import utils.Utils;
 
 public class Main {
@@ -821,15 +820,15 @@ public class Main {
 							break;
 						case 4:
 							System.out.println("¿Desea añadir un efecto o modificar uno existente? (1- Añadir efecto o 2- Modificar efecto)");
-							int respuesta = Util.leerInt(1,2);
+							int respuesta = Utils.leerInt(1,2);
 							if (respuesta == 1) {
 								//Añadimos un efecto nuevo al ArrayList existente y almacenado en esta carta
-								String nuevoEfecto = Util.leerString();
+								String nuevoEfecto = Utils.leerString();
 								cartas.get(i).getEfectos().add(nuevoEfecto);
 							}
 							if (respuesta == 2) {
 								System.out.println("¿Qué efecto desea modificar?");
-								String efectoABuscar = Util.leerString();
+								String efectoABuscar = Utils.leerString();
 								//Volcamos la lista de efectos en otro arraylist para manejarlo con mayor facilidad para recorrer
 								ArrayList<String> efectos = cartas.get(i).getEfectos();
 								boolean encontrado2 = false;
@@ -837,7 +836,7 @@ public class Main {
 									//Si el efecto que se desea modificar coincide, se elimina y se introduce uno nuevo en su lugar
 									if (efectos.get(j).equals(efectoABuscar)) {
 										System.out.println("Efecto encontrado. Introduzca el nuevo efecto: ");
-										String efectoN = Util.leerString();
+										String efectoN = Utils.leerString();
 										efectos.remove(j);
 										efectos.add(j, efectoN);
 										System.out.println("Efecto modificado.");
@@ -854,7 +853,7 @@ public class Main {
 							if (carta instanceof Unidad) {
 								System.out.println("¿Desea que esta unidad sea Campeón? ('S' o 'N')");	
 								Unidad unidad = (Unidad) cartas.get(i);
-								unidad.setEsCampeon(Util.esBoolean());
+								unidad.setEsCampeon(Utils.esBoolean());
 								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
 								cartas.remove(i);
 								cartas.add(i, unidad);
@@ -867,7 +866,7 @@ public class Main {
 							if (carta instanceof Hechizo) {
 								System.out.println("Introduzca el nuevo tipo del hechizo.");	
 								Hechizo hechizo = (Hechizo) cartas.get(i);
-								hechizo.setTipo(Util.leerString());
+								hechizo.setTipo(Utils.leerString());
 								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
 								cartas.remove(i);
 								cartas.add(i, hechizo);
