@@ -872,9 +872,6 @@ public class Main {
 			System.out.println("Aún no existen cartas almacenadas.");
 		}
 	}
-<<<<<<< HEAD
-}
-=======
 	
 	private static void listarCarta(File fichCartas) {
 		ArrayList<Carta> cartas = new ArrayList<Carta>();
@@ -892,7 +889,7 @@ public class Main {
 				switch (opc) {
 				case 1:
 					System.out.println("Introduce el mana de las cartas que deseas listar.");
-					int manaIntr = Util.leerInt();
+					int manaIntr = Utils.leerInt();
 					for (int i = 0; i < cartas.size() && !encontrado; i++) {
 						if (cartas.get(i).getMana() == manaIntr) {
 							if (cartas.get(i) instanceof Unidad) {
@@ -912,7 +909,7 @@ public class Main {
 					break;
 				case 2:
 					System.out.println("Introduce el daño de las cartas que deseas listar.");
-					int dannoIntr = Util.leerInt();
+					int dannoIntr = Utils.leerInt();
 					for (int i = 0; i < cartas.size() && !encontrado; i++) {
 						if (cartas.get(i).getDanno() == dannoIntr) {
 							if (cartas.get(i) instanceof Unidad) {
@@ -932,7 +929,7 @@ public class Main {
 					break;
 				case 3:
 					System.out.println("Introduce el tipo de las cartas que deseas listar.");
-					String tipoIntr = Util.leerString();
+					String tipoIntr = Utils.leerString();
 					for (int i = 0; i < cartas.size() && !encontrado; i++) {
 						if (cartas.get(i) instanceof Hechizo) {
 							Hechizo hechizo = (Hechizo) cartas.get(i);
@@ -1017,4 +1014,4 @@ public class Main {
 		
 	}
 }
->>>>>>> merge
+
