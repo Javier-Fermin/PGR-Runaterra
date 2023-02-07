@@ -2,6 +2,8 @@ package clases;
 
 import java.util.ArrayList;
 
+import utils.Utils;
+
 public class Hechizo extends Carta {
 	private String tipo;
 
@@ -27,4 +29,9 @@ public class Hechizo extends Carta {
 		return "Hechizo [tipo=" + tipo + "]";
 	}
 
+	public void setDatos(int Id) {
+	    super.setDatos(Id);
+	    System.out.println("Introduce el tipo de hechizo: ");
+	    this.tipo = Utils.introducirCadena();
+	}
 }

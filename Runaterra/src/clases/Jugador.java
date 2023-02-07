@@ -10,12 +10,12 @@ public class Jugador {
 	private String nickname;
 	private Map<Integer, Integer> mazo = new HashMap<Integer, Integer>();
 	private int victorias;
-	private Map<LocalDate, Partida> partidas = new HashMap<LocalDate, Partida>();
+	private Map<String, Partida> partidas = new HashMap<String, Partida>();
 //Constructores
 	public Jugador() {
 		super();
 	}
-	public Jugador(String nickname, Map<Integer, Integer> mazo, int victorias, Map<LocalDate, Partida> partidas) {
+	public Jugador(String nickname, Map<Integer, Integer> mazo, int victorias, Map<String, Partida> partidas) {
 		super();
 		this.nickname = nickname;
 		this.mazo = mazo;
@@ -41,10 +41,10 @@ public class Jugador {
 	public void setVictorias(int victorias) {
 		this.victorias = victorias;
 	}
-	public Map<LocalDate, Partida> getPartidas() {
+	public Map<String, Partida> getPartidas() {
 		return partidas;
 	}
-	public void setPartidas(Map<LocalDate, Partida> partidas) {
+	public void setPartidas(Map<String, Partida> partidas) {
 		this.partidas = partidas;
 	}
 	// toString()
@@ -63,7 +63,7 @@ public class Jugador {
 	public void calcularVictorias() {
 		int partidasGanadas = 0;
 		for (Partida p : partidas.values()) {
-			if (p.getGanador().equals(this.nickname))
+			if (p.getNickWinner().equals(this.nickname))
 				partidasGanadas++;
 		}
 		this.victorias = partidasGanadas;
