@@ -46,6 +46,7 @@ public class Partida {
 		System.out.println("Introduzca el nickname del perdedor");
 		this.nickLosser=Utils.introducirCadena();
 	}
+	
 	public void mostrar() {
 		// TODO Auto-generated method stub
 		System.out.println("ID de partida: "+this.idPartida);
