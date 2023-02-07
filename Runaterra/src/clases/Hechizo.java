@@ -1,7 +1,5 @@
 package clases;
 
-import java.util.ArrayList;
-
 import utils.Utils;
 
 public class Hechizo extends Carta {

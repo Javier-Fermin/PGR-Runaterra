@@ -1,10 +1,11 @@
 package clases;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import utils.Utils;
 
-public class Partida {
+public class Partida implements Serializable {
 	private String idPartida, nickWinner, nickLosser;
 	private LocalDate fechaPartida;
 	

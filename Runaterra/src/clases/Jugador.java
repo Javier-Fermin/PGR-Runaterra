@@ -1,12 +1,12 @@
 package clases;
 
-import java.time.LocalDate;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import utils.Utils;
 
-public class Jugador {
+public class Jugador implements Serializable {
 	private String nickname;
 	private Map<Integer, Integer> mazo = new HashMap<Integer, Integer>();
 	private int victorias;
