@@ -24,7 +24,6 @@ import utils.Utils;
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		int opc;
 		File fichJugadores = new File("jugadores.dat");
 		File fichCartas = new File("cartas.dat");
@@ -245,6 +244,8 @@ public class Main {
 	}
 
 	private static void annadirJugador(File fichJugadores, File fichCartas) {
+		// Abrimos flujos de salida hacia en fichero de jugadores con cuidado de no
+		// sobreescribir objetos
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
 		Jugador jug = new Jugador();
@@ -253,8 +254,10 @@ public class Main {
 			try {
 				fos = new FileOutputStream(fichJugadores, true);
 				oos = new MyObjectOutputStream(fos);
+
+				// Rellenamos datos del jugador y lo escribimos en el fichero en la última
+				// posición
 				jug.setDatos();
-				oos.writeObject(jug);
 				oos.writeObject(jug);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -265,6 +268,8 @@ public class Main {
 			try {
 				fos = new FileOutputStream(fichJugadores);
 				oos = new ObjectOutputStream(fos);
+
+				// Rellenamos datos del jugador y lo escribimos en el fichero
 				jug.setDatos();
 				oos.writeObject(jug);
 			} catch (FileNotFoundException e) {
@@ -273,6 +278,9 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+
+		// En caso de que haya alguna carta en fichero, se le pregunta al usuario si
+		// quiere añadir alguna carta a su mazo
 		if (Utils.calculoFichero(fichCartas) != 0) {
 			int annadirMazo = 0;
 			boolean primeraVuelta = true;
@@ -294,13 +302,18 @@ public class Main {
 						ois = new ObjectInputStream(fis);
 						aux = (Carta) ois.readObject();
 						while (aux != null) {
+							// Encuentra la carta en el fichero
 							if (aux.getId() == wId) {
+								// Si encuentra la carta en el mazo, añade +1 a la ya existente
 								if (jug.getMazo().containsKey(wId))
 									jug.getMazo().replace(wId, jug.getMazo().get(wId) + 1);
 								else
+									// Si no está aún en el mazo, simplemente la añade
 									jug.getMazo().put(wId, 1);
 							}
 						}
+
+						// Sumamos +1 al tamaño del mazo del jugador
 						tamMazo++;
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
@@ -312,9 +325,11 @@ public class Main {
 						e.printStackTrace();
 					}
 				} else
+					// Mensaje en caso de que decida no añadir ninguna carta
 					System.out.println("Has decidido no añadir ninguna carta a tu mazo\n");
 				primeraVuelta = false;
 				if (tamMazo == 40)
+					// Mensaje en caso de que ya tenga 40 cartas (el máximo) en su mazo
 					System.out.println("Ya has metido el máximo de cartas en tuy mazo: 40");
 				else
 					seguir = Utils.confirmacion("¿Quieres añadir otra carta a tu mazo? (S SI / N NO):");
@@ -329,19 +344,26 @@ public class Main {
 	}
 
 	private static void modificarJugador(File fichJugadores, File fichCartas) {
+		// Declaramos ArrayList de jugadores y de cartas para poder hacer los volcados
 		ArrayList<Jugador> jugadores = new ArrayList<>();
 		ArrayList<Carta> cartas = new ArrayList<>();
 		String wNickname;
 		boolean encontrado = false;
+
+		// Si el fichero existe, se le pregunta si quiere modificar el nickname o el
+		// mazo de cartas
 		if (fichJugadores.exists()) {
 			System.out.println("¿Quieres modificar el NICKNAME o el MAZO? (1 NICKNAME / 2 MAZO / 0 CANCELAR):");
 			int opcion = Utils.leerInt();
 			if (opcion == 1) {
+				// En caso de que quiera modificar el nickname, se le pregunta por el nickname
+				// actual (el que hay que actualizar)
 				volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
 				System.out.println("Introduce el nickname actual del jugador que quieres modificar:");
 				wNickname = Utils.introducirCadena();
 				for (int i = 0; i < jugadores.size() && !encontrado; i++) {
 					if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname)) {
+						// Preguntamos cuál es el nuevo nickname y lo actualizamos
 						System.out.println("Introduce el nuevo nickname:");
 						wNickname = Utils.introducirCadena();
 						jugadores.get(i).setNickname(wNickname);
@@ -350,52 +372,67 @@ public class Main {
 					}
 				}
 				if (!encontrado)
+					// Mensaje en caso de que no se encuentre el nickname en el fichero de jugadores
 					System.out.println("No hay ningún jugador con nick " + wNickname + "\n");
 				volcadoArrayListAFicheroJugadores(fichJugadores, jugadores);
 			} else if (opcion == 2) {
+				// Si decide modificar el mazo, se le pregunta si quiere añadir o eliminar una
+				// carta
 				System.out.println("¿Quieres AÑADIR o ELIMINAR una carta? (1 AÑADIR / 2 ELIMINAR / 0 CANCELAR):");
 				int opcionMazo = Utils.leerInt();
 				if (opcionMazo == 1) {
+					// En caso de que decida añadir una carta, le preguntamos el nickname del dueño
+					// del mazo
 					System.out.println("Introduce el nickname del jugador al que quieres añadir una carta en el mazo:");
 					String wNickname2 = Utils.introducirCadena();
 					volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
 					for (int i = 0; i < jugadores.size(); i++) {
-
+						// Encontramos en al jugador en el fichero
 						if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname2) && !encontrado) {
 							encontrado = true;
 
+							// Si existe alguna carta en fichero de cartas, procedemos a añadir
 							if (Utils.calculoFichero(fichCartas) != 0) {
-
 								int tamMazo = 0;
 								for (int e : jugadores.get(i).getMazo().values()) {
 									tamMazo += e;
 								}
+
+								// Primero hay que comprobar que tenga menos de 40 cartas en el mazo, que es el
+								// máximo permitido
 								if (tamMazo < 40) {
+									// Preguntamos el ID de la carta
 									System.out.println("Introduce el ID de la carta a añadir:");
 									int wId = Utils.leerInt();
 									volcadoFicheroAArrayListCartas(fichCartas, cartas);
 									for (int j = 0; j < cartas.size(); j++) {
+										// Encontramos la carta en el fichero
 										if (cartas.get(i).getId() == wId) {
 											for (int x = 0; x < jugadores.size(); x++) {
+												// Si ya tiene esta carta en su mazo, le ponemos +1
 												if (jugadores.get(x).getMazo().containsKey(wId))
 													jugadores.get(x).getMazo().replace(wId,
 															jugadores.get(x).getMazo().get(wId) + 1);
 												else
+													// Si aún no la tiene, la añadimos normalmente
 													jugadores.get(x).getMazo().put(wId, 1);
 											}
 										}
 									}
+
+									// Sumamos 1 carta al tamaño del mazo del jugador
 									tamMazo++;
 									System.out
 											.println("Carta añadida correcatamente en el mazo de " + wNickname2 + "\n");
 								} else
+									// Mensaje en caso de que ya tenga 40 cartas en el mazo
 									System.out.println("El jugador " + wNickname2
 											+ " ya tiene el máximo de cartas permitidas en su mazo\n");
 							} else
+								// Mensaje para cuando no exista ninguna carta en el fichero de cartas
 								System.out.println("Aún no hay ninguna carta en fichero; imposible añadir carta\n");
 
-						} else
-							System.out.println("No se ha encontrado ningún jugador con nicnkname " + wNickname2 + "\n");
+						}
 
 					}
 
@@ -403,10 +440,11 @@ public class Main {
 					volcadoArrayListAFicheroCartas(fichCartas, cartas);
 
 					if (!encontrado)
+						// Mensaje en caso de que no se encuentre el nickname en el fichero de jugadores
 						System.out.println("No se ha encontrado ningún jugador con nick " + wNickname2 + "\n");
 
 				} else if (opcionMazo == 2) {
-
+					//Entramos en la opción de "eliminar carta del mazo" y le preguntamos por el dueño del mazo
 					String wNickname2 = Utils.leerString(
 							"Introduce el nickname del jugador al que quieres eliminar una carta en el mazo:");
 
@@ -415,10 +453,11 @@ public class Main {
 					boolean encontrado2 = false;
 
 					for (int i = 0; i < jugadores.size(); i++) {
-
+						//Encontramos al jugador en el fichero
 						if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname2)) {
 							encontrado = true;
 
+							//Si hay alguna carta en el fichero, procedemos a eliminar la carta del mazo del jugador
 							if (Utils.calculoFichero(fichCartas) != 0) {
 								encontrado2 = true;
 
@@ -427,15 +466,18 @@ public class Main {
 								for (int e : jugadores.get(i).getMazo().values()) {
 									tamMazo += e;
 								}
-
+								
+								//Le preguntamos por el ID de la carta a eliminar del mazo
 								System.out.println("Introduce el ID de la carta a eliminar:");
 								int wId = Utils.leerInt();
 
 								volcadoFicheroAArrayListCartas(fichCartas, cartas);
 
 								for (int j = 0; j < cartas.size(); j++) {
+									//Encontramos la carta en el fichero
 									if (cartas.get(i).getId() == wId) {
 										for (int x = 0; x < jugadores.size(); x++) {
+											//Encontramos la carta en el mazo
 											if (jugadores.get(x).getMazo().containsKey(wId)) {
 												jugadores.get(x).getMazo().remove(wId);
 											}
@@ -454,36 +496,45 @@ public class Main {
 					}
 
 					if (!encontrado2)
+						//Mensaje en caso de que no existan cartas en el fichero
 						System.out.println("Aún no hay ninguna carta en el mazo\n");
 
 					if (!encontrado)
+						//Mensaje que se muestra si no se encuentra al jugador
 						System.out.println("No se ha encontrado ningún jugador con nick " + wNickname2 + "\n");
 
 				} else
+					//Mensaje para cuando se retracte de modificar
 					System.out.println("Modificación cancelada\n");
 			} else
+				//Mensaje para cuando se retracte de modificar
 				System.out.println("Modificación cancelada\n");
 		} else
+			//Mensaje si todavía no hay ningún jugador en el fichero de jugadores
 			System.out.println("Aún no hay jugadores\n");
 	}
 
 	private static void listarJugadores(File fichJugadores) {
+		//Declaramos el ArrayList para poder hacer el volcado de jugadores
 		ArrayList<Jugador> jugadores = new ArrayList<>();
 		boolean encontrado = false;
 
 		int opcion = Utils.leerInt(
+				//Le preguntamos al usuario si quiere listar por nickname o por número mínimo de victorias en partidas
 				"¿Quieres listar jugador/es por su NICKNAME o por el número de VICTORIAS? (1 NICKNAME / 2 VICTORIAS / 0 CANCELAR):",
 				0, 2);
-		
+
 		if (opcion == 1) {
+			//Si decide listar por nickname, se le solicita el mismo
 			String wNickname = Utils.leerString("Introduce el nickname del jugador del que quieres listar sus datos:");
 
 			volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
 
 			for (int i = 0; i < jugadores.size(); i++) {
+				//Encontramos al jugador
 				if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname) && !encontrado) {
 					encontrado = true;
-
+					//Lo mostramos por pantalla
 					System.out.println(jugadores.get(i).toString() + "\n");
 				}
 			}
@@ -491,8 +542,10 @@ public class Main {
 			volcadoArrayListAFicheroJugadores(fichJugadores, jugadores);
 
 			if (!encontrado)
+				//Si no hemos encontrado al jugador con ese nickname, se lo notificamos
 				System.out.println("No se ha encontrado ningún jugador con nickname " + wNickname + "\n");
 		} else if (opcion == 2) {
+			//Si decide listar a partir de un número determinado de victorias, le pedimos el número de victorias
 			System.out.println("Introduce el número mínimo de victorias que debe/n tener el/los jugador/es a listar:");
 			int wVictorias = Utils.leerInt();
 
@@ -500,7 +553,8 @@ public class Main {
 
 			for (int i = 0; i < jugadores.size(); i++) {
 				jugadores.get(i).calcularVictorias();
-
+				
+				//Todos los jugadores que tengan al menos esas victorias, serán listados
 				if (jugadores.get(i).getVictorias() >= wVictorias) {
 					encontrado = true;
 
@@ -509,8 +563,10 @@ public class Main {
 			}
 
 			if (!encontrado)
+				//Mensaje de control cuando ningún jugador cumpla con los requisitos de victorias mínimas
 				System.out.println("No hay ningún jugador que tenga al menos " + wVictorias + " victorias\n");
 		} else
+			//Mensaje para cuando decida cancelar el listado
 			System.out.println("Listado cancelado\n");
 	}
 
@@ -570,11 +626,11 @@ public class Main {
 
 			if (borrar == 1) {
 				if (fichJugadores.delete() == false) {
-					
+
 					System.out.println("No ha sido posible eliminar el fichero\n");
-				fichJugadores.delete();
-			}
-				if (fichAux.renameTo(fichJugadores)== false) {
+					fichJugadores.delete();
+				}
+				if (fichAux.renameTo(fichJugadores) == false) {
 					System.out.println("No ha sido posible renombrar el fichero\n");
 					fichAux.renameTo(fichJugadores);
 				}
@@ -681,8 +737,6 @@ public class Main {
 		}
 	}
 
-
-
 	private static void aniadirCarta(File fichCartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream moos = null;
@@ -772,7 +826,7 @@ public class Main {
 
 		System.out.println("Introduce el id de la carta que deseas modificar.");
 		int id = Utils.leerInt();
-		
+
 		if (fichCartas.exists()) {
 			FileInputStream fis = null;
 			ObjectInputStream ois = null;
@@ -788,7 +842,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			//Se vuelcan los objetos del fichero a un objeto para un mejor manejo
+			// Se vuelcan los objetos del fichero a un objeto para un mejor manejo
 			volcadoFicheroAArrayListCartas(fichCartas, cartas);
 			// Se busca en el fichero una id correspondiente a la solicitada por el usuario
 			for (int i = 0; i < cartas.size() && !encontrado; i++) {
@@ -798,7 +852,7 @@ public class Main {
 					do {
 						System.out.println("¿Qué desea modificar?\\n\" + \"\\t1. Mana\\n\" + \"\\t2. Daño\\n\"\r\n"
 								+ "					+ \"\\t3. Descripcion\\n\" + \"\\t4. Efectos\\n\t5. Salir\\n");
-						opc = Utils.leerIntMinMax(1, 6);					
+						opc = Utils.leerIntMinMax(1, 6);
 						switch (opc) {
 						case 1:
 							System.out.println("Introduzca el nuevo mana que desea asignar a la carta.");
@@ -819,21 +873,24 @@ public class Main {
 							System.out.println("Carta modificada.");
 							break;
 						case 4:
-							System.out.println("¿Desea añadir un efecto o modificar uno existente? (1- Añadir efecto o 2- Modificar efecto)");
-							int respuesta = Utils.leerInt(1,2);
+							System.out.println(
+									"¿Desea añadir un efecto o modificar uno existente? (1- Añadir efecto o 2- Modificar efecto)");
+							int respuesta = Utils.leerInt(1, 2);
 							if (respuesta == 1) {
-								//Añadimos un efecto nuevo al ArrayList existente y almacenado en esta carta
+								// Añadimos un efecto nuevo al ArrayList existente y almacenado en esta carta
 								String nuevoEfecto = Utils.leerString();
 								cartas.get(i).getEfectos().add(nuevoEfecto);
 							}
 							if (respuesta == 2) {
 								System.out.println("¿Qué efecto desea modificar?");
 								String efectoABuscar = Utils.leerString();
-								//Volcamos la lista de efectos en otro arraylist para manejarlo con mayor facilidad para recorrer
+								// Volcamos la lista de efectos en otro arraylist para manejarlo con mayor
+								// facilidad para recorrer
 								ArrayList<String> efectos = cartas.get(i).getEfectos();
 								boolean encontrado2 = false;
 								for (int j = 0; j < efectos.size() & !encontrado2; j++) {
-									//Si el efecto que se desea modificar coincide, se elimina y se introduce uno nuevo en su lugar
+									// Si el efecto que se desea modificar coincide, se elimina y se introduce uno
+									// nuevo en su lugar
 									if (efectos.get(j).equals(efectoABuscar)) {
 										System.out.println("Efecto encontrado. Introduzca el nuevo efecto: ");
 										String efectoN = Utils.leerString();
@@ -843,36 +900,36 @@ public class Main {
 										encontrado2 = true;
 									}
 								}
-								//Volcamos la lista de nuevo en el propio ArrayList de la carta
+								// Volcamos la lista de nuevo en el propio ArrayList de la carta
 								cartas.get(i).setEfectos(efectos);
 							}
 							break;
 
 						case 5:
-							//Comprobamos que esta carta sea unidad
+							// Comprobamos que esta carta sea unidad
 							if (carta instanceof Unidad) {
-								System.out.println("¿Desea que esta unidad sea Campeón? ('S' o 'N')");	
+								System.out.println("¿Desea que esta unidad sea Campeón? ('S' o 'N')");
 								Unidad unidad = (Unidad) cartas.get(i);
 								unidad.setEsCampeon(Utils.esBoolean());
-								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
+								// Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
 								cartas.remove(i);
 								cartas.add(i, unidad);
- 							} else {
- 								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
- 							}
+							} else {
+								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
+							}
 							break;
 						case 6:
-							//Comprobamos que esta carta sea hechizo
+							// Comprobamos que esta carta sea hechizo
 							if (carta instanceof Hechizo) {
-								System.out.println("Introduzca el nuevo tipo del hechizo.");	
+								System.out.println("Introduzca el nuevo tipo del hechizo.");
 								Hechizo hechizo = (Hechizo) cartas.get(i);
 								hechizo.setTipo(Utils.leerString());
-								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
+								// Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
 								cartas.remove(i);
 								cartas.add(i, hechizo);
- 							} else {
- 								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
- 							}
+							} else {
+								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
+							}
 							break;
 						case 7:
 							salir = Utils.confirmacion("Desea salir?\nS para Si\nN para No");
@@ -882,25 +939,29 @@ public class Main {
 					encontrado = true;
 				}
 				if (!encontrado) {
-					System.out.println("No se ha encontrado la carta.");				
+					System.out.println("No se ha encontrado la carta.");
 				}
 				volcadoArrayListAFicheroCartas(fichCartas, cartas);
 			}
 
-	}else{System.out.println("Aún no existen cartas almacenadas.");}}
+		} else {
+			System.out.println("Aún no existen cartas almacenadas.");
+		}
+	}
 
 	private static void listarCarta(File fichCartas) {
 		ArrayList<Carta> cartas = new ArrayList<Carta>();
 		boolean encontrado = false;
 		System.out.println("Introduce el id de la carta que deseas mostrar.");
 		int id = Utils.leerInt();
-		
+
 		if (fichCartas.exists()) {
-			//Volcamos fichero a arraylist para buscar la carta deseada (No hace falta volver a volcarlo al fichero ya que no vamos a modificar nada
+			// Volcamos fichero a arraylist para buscar la carta deseada (No hace falta
+			// volver a volcarlo al fichero ya que no vamos a modificar nada
 			volcadoFicheroAArrayListCartas(fichCartas, cartas);
 			for (int i = 0; i < cartas.size() && !encontrado; i++) {
 				if (cartas.get(i).getId() == id) {
-					//Dependiendo del tipo de Carta mostramos la unidad o el hechizo
+					// Dependiendo del tipo de Carta mostramos la unidad o el hechizo
 					if (cartas.get(i) instanceof Unidad) {
 						Unidad unidad = (Unidad) cartas.get(i);
 						unidad.toString();
