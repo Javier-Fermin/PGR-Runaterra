@@ -25,7 +25,7 @@ public class Main {
 		int opc;
 		File fichJugadores = new File("jugadores.dat");
 		File fichCartas = new File("cartas.dat");
-		boolean salir=false;
+		boolean salir = false;
 		do {
 			System.out.println("Elige una opción:\n" + "\t1.  Añadir un jugador\n" + "\t2.  Modificar un jugador\n"
 					+ "\t3.  Listar jugadores\n" + "\t4.  Eliminar un jugador\n" + "\t5.  Añadir una partida\n"
@@ -181,8 +181,12 @@ public class Main {
 					String wNickname2 = Utils.introducirCadena();
 					volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
 					for (int i = 0; i < jugadores.size(); i++) {
-						if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname2)) {
+
+						if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname2) && !encontrado) {
+							encontrado = true;
+
 							if (Utils.calculoFichero(fichCartas) != 0) {
+
 								int tamMazo = 0;
 								for (int e : jugadores.get(i).getMazo().values()) {
 									tamMazo += e;
@@ -210,12 +214,72 @@ public class Main {
 											+ " ya tiene el máximo de cartas permitidas en su mazo\n");
 							} else
 								System.out.println("Aún no hay ninguna carta en fichero; imposible añadir carta\n");
+
 						} else
 							System.out.println("No se ha encontrado ningún jugador con nicnkname " + wNickname2 + "\n");
+
+					}
+
+					volcadoArrayListAFicheroJugadores(fichJugadores, jugadores);
+					volcadoArrayListAFicheroCartas(fichCartas, cartas);
+
+					if (!encontrado)
+						System.out.println("No se ha encontrado ningún jugador con nick " + wNickname2 + "\n");
+
+				} else if (opcionMazo == 2) {
+
+					String wNickname2 = Utils.leerString(
+							"Introduce el nickname del jugador al que quieres eliminar una carta en el mazo:");
+
+					volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
+
+					boolean encontrado2 = false;
+
+					for (int i = 0; i < jugadores.size(); i++) {
+
+						if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname2)) {
+							encontrado = true;
+
+							if (Utils.calculoFichero(fichCartas) != 0) {
+								encontrado2 = true;
+
+								int tamMazo = 0;
+
+								for (int e : jugadores.get(i).getMazo().values()) {
+									tamMazo += e;
+								}
+
+								System.out.println("Introduce el ID de la carta a eliminar:");
+								int wId = Utils.leerInt();
+
+								volcadoFicheroAArrayListCartas(fichCartas, cartas);
+
+								for (int j = 0; j < cartas.size(); j++) {
+									if (cartas.get(i).getId() == wId) {
+										for (int x = 0; x < jugadores.size(); x++) {
+											if (jugadores.get(x).getMazo().containsKey(wId)) {
+												jugadores.get(x).getMazo().remove(wId);
+											}
+
+										}
+									}
+								}
+
+								tamMazo--;
+								System.out.println("Carta eliminada correcatamente del mazo de " + wNickname2 + "\n");
+							}
+						}
+
 						volcadoArrayListAFicheroJugadores(fichJugadores, jugadores);
 						volcadoArrayListAFicheroCartas(fichCartas, cartas);
 					}
-				} else if (opcionMazo == 2) {
+
+					if (!encontrado2)
+						System.out.println("Aún no hay ninguna carta en el mazo\n");
+
+					if (!encontrado)
+						System.out.println("No se ha encontrado ningún jugador con nick " + wNickname2 + "\n");
+
 				} else
 					System.out.println("Modificación cancelada\n");
 			} else
@@ -224,14 +288,128 @@ public class Main {
 			System.out.println("Aún no hay jugadores\n");
 	}
 
-	private static void volcadoFicheroAArrayListCartas(File fichCartas, ArrayList<Carta> cartas) {
+	private static void listarJugadores(File fichJugadores) {
+		ArrayList<Jugador> jugadores = new ArrayList<>();
+		boolean encontrado = false;
+
+		int opcion = Utils.leerInt(
+				"¿Quieres listar jugador/es por su NICKNAME o por el número de VICTORIAS? (1 NICKNAME / 2 VICTORIAS / 0 CANCELAR):",
+				0, 2);
+		
+		if (opcion == 1) {
+			String wNickname = Utils.leerString("Introduce el nickname del jugador del que quieres listar sus datos:");
+
+			volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
+
+			for (int i = 0; i < jugadores.size(); i++) {
+				if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname) && !encontrado) {
+					encontrado = true;
+
+					System.out.println(jugadores.get(i).toString() + "\n");
+				}
+			}
+
+			volcadoArrayListAFicheroJugadores(fichJugadores, jugadores);
+
+			if (!encontrado)
+				System.out.println("No se ha encontrado ningún jugador con nickname " + wNickname + "\n");
+		} else if (opcion == 2) {
+			System.out.println("Introduce el número mínimo de victorias que debe/n tener el/los jugador/es a listar:");
+			int wVictorias = Utils.leerInt();
+
+			volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
+
+			for (int i = 0; i < jugadores.size(); i++) {
+				jugadores.get(i).calcularVictorias();
+
+				if (jugadores.get(i).getVictorias() >= wVictorias) {
+					encontrado = true;
+
+					System.out.println(jugadores.get(i).toString() + "\n");
+				}
+			}
+
+			if (!encontrado)
+				System.out.println("No hay ningún jugador que tenga al menos " + wVictorias + " victorias\n");
+		} else
+			System.out.println("Listado cancelado\n");
 	}
 
-	private static void volcadoFicheroAArrayListJugadores(File fich, ArrayList<Jugador> jugadores) {
+	private static void eliminarJugador(File fichJugadores) {
+		File fichAux = new File("auxiliar.dat");
+		String wNickname = null;
+		int cuantosJugadores = 0;
+		boolean cambios = false;
+		int borrar = 1;
+		boolean encontrado = false;
+
+		if (fichJugadores.exists()) {
+			wNickname = Utils.leerString("Introduce el nickname del jugador que quieres eliminar:");
+
+			cuantosJugadores = Utils.calculoFichero(fichJugadores);
+
+			try {
+				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichJugadores));
+				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fichAux));
+
+				for (int i = 0; i < cuantosJugadores && borrar == 1; i++) {
+					cambios = false;
+					Jugador jug = (Jugador) ois.readObject();
+
+					if (jug.getNickname().equalsIgnoreCase(wNickname) && !encontrado) {
+						encontrado = true;
+
+						System.out.println(jug + "\n");
+
+						borrar = Utils.leerInt(
+								"¿Seguro que quieres eliminar este jugador definitivamente? (1 ELIMINAR / 0 CANCELAR):",
+								0, 1);
+
+						if (borrar == 1) {
+							cambios = true;
+							System.out.println("Jugador con nickname " + wNickname + " eliminada correctamente\n");
+						} else
+							System.out.println("Borrado cancelado\n");
+					}
+
+					if (!cambios)
+						oos.writeObject(jug);
+				}
+
+				if (!encontrado)
+					System.out.println("No se ha encontrado ningún jugador con nickname " + wNickname + "\n");
+
+				oos.close();
+				ois.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			if (borrar == 1) {
+				if (fichJugadores.delete() == false) {
+					
+					System.out.println("No ha sido posible eliminar el fichero\n");
+				fichJugadores.delete();
+			}
+				if (fichAux.renameTo(fichJugadores)== false) {
+					System.out.println("No ha sido posible renombrar el fichero\n");
+					fichAux.renameTo(fichJugadores);
+				}
+			}
+		} else
+			System.out.println("Aún no hay ningún jugador en el fichero\n");
+
+	}
+
+	private static void volcadoFicheroAArrayListJugadores(File fichJugadores, ArrayList<Jugador> jugadores) {
 		FileInputStream fis = null;
 		ObjectInputStream ois = null;
 		try {
-			fis = new FileInputStream(fich);
+			fis = new FileInputStream(fichJugadores);
 			ois = new ObjectInputStream(fis);
 			Jugador aux = (Jugador) ois.readObject();
 			while (aux != null) {
@@ -250,10 +428,38 @@ public class Main {
 		}
 	}
 
-	private static void volcadoArrayListAFicheroJugadores(File fich, ArrayList<Jugador> jugadores) {
+	private static void volcadoFicheroAArrayListCartas(File fichCartas, ArrayList<Carta> cartas) {
+		FileInputStream fis = null;
+		ObjectInputStream ois = null;
+
+		try {
+			fis = new FileInputStream(fichCartas);
+			ois = new ObjectInputStream(fis);
+
+			Carta aux = (Carta) ois.readObject();
+
+			while (aux != null) {
+				cartas.add(aux);
+				aux = (Carta) ois.readObject();
+			}
+		} catch (EOFException e) {
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			ois.close();
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void volcadoArrayListAFicheroJugadores(File fichJugadores, ArrayList<Jugador> jugadores) {
 		ObjectOutputStream oos = null;
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream(fich));
+			oos = new ObjectOutputStream(new FileOutputStream(fichJugadores));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -273,10 +479,10 @@ public class Main {
 		}
 	}
 
-	private static void volcadoArrayListAFicheroCartas(File fich, ArrayList<Carta> cartas) {
+	private static void volcadoArrayListAFicheroCartas(File fichCartas, ArrayList<Carta> cartas) {
 		ObjectOutputStream oos = null;
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream(fich));
+			oos = new ObjectOutputStream(new FileOutputStream(fichCartas));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -296,11 +502,7 @@ public class Main {
 		}
 	}
 
-	private static void listarJugadores(File fichJugadores) {
-	}
 
-	private static void eliminarJugador(File fichJugadores) {
-	}
 	private static void aniadirCarta(File cartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream moos = null;

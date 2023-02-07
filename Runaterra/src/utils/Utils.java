@@ -29,6 +29,31 @@ public class Utils {
 
 		return cadena;
 	}
+	public static int leerInt(String msj, int min, int max) {
+		int num = 0;
+		boolean error;
+
+		System.out.println(msj);
+
+		do {
+			error = false;
+			try {
+				num = Integer.parseInt(leerString());
+
+			} catch (NumberFormatException exc) {
+				System.err.println("Error; valor no numérico. Inténtalo de nuevo:");
+				error = true;
+				num = min;
+			}
+
+			if (num < min || num > max) {
+				System.err.println("Error; nº fuera de rango. Introduce un nº entre " + min + " y " + max + ":");
+				error = true;
+			}
+		} while (error);
+
+		return num;
+	}
 
 	public static String leerString() {
 		String cadena = null;
