@@ -1,5 +1,8 @@
 package clases;
 
+import utils.Util;
+import utils.Utils;
+
 public class Unidad extends Carta {
 	private boolean esCampeon;
 
@@ -24,6 +27,10 @@ public class Unidad extends Carta {
 	public String toString() {
 		return "Unidad [esCampeon=" + esCampeon + "]";
 	}
-	
 
+	public void setDatos(int Id) {
+	    super.setDatos(Id);
+	    System.out.println("¿La unidad es campeón? (Sí / No)");
+	    this.esCampeon = Util.esBoolean();
+	}
 }

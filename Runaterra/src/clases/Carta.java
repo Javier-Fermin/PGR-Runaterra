@@ -1,10 +1,12 @@
 package clases;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
+import utils.Util;
 import utils.Utils;
 
-public class Carta {
+public class Carta implements Serializable {
 	protected int id;
 	protected int mana;
 	protected int danno;
@@ -85,14 +87,18 @@ public class Carta {
 		System.out.println("Introduce el dano de la carta: ");
 		this.danno = Utils.leerInt();
 		System.out.println("Introduce la descripcion de la carta: ");
-		this.descripcion = Utils.introducirCadena();	
-		//
-		//Setear datos para Unidad y Hechizo
-		//
-		
-		/*if (Carta instanceof Unidad) {
-			
-		}*/
+		this.descripcion = Utils.introducirCadena();
+		System.out.println("¿Desea introducir algún efecto?");
+		if(Util.esBoolean()) {
+			boolean seguir = true;
+			do {
+				System.out.println("Escriba el nombre del efecto a continuación:");
+				//Se añade el efecto a la coleccion de posibles efectos
+				efectos.add(Util.leerString());
+				System.out.println("¿Desea añadir otro efecto?");
+				if (!Util.esBoolean()) seguir = false;
+			} while (seguir != false);
+		}
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import clases.Jugador;
 import clases.Partida;
 import clases.Unidad;
 import utils.MyObjectOutputStream;
+import utils.Util;
 import utils.Utils;
 
 public class Main {
@@ -55,10 +56,13 @@ public class Main {
 				listarPartidas(fichJugadores);
 				break;
 			case 7:
+				aniadirCarta(fichCartas);
 				break;
 			case 8:
+				modificarCarta(fichCartas);
 				break;
 			case 9:
+				listarCarta(fichCartas);
 				break;
 			case 10:
 				break;
@@ -478,38 +482,36 @@ public class Main {
 	private static void eliminarJugador(File fichJugadores) {
 	}
 
-	private static void aniadirCarta(File cartas) {
+	private static void aniadirCarta(File fichCartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream moos = null;
+		Carta c = new Carta();
 
 		// Si el archivo de cartas ya existe, se calcula el numero de cartas para que al
-		// crearla se anada ese numero como id de carta
-		if (cartas.exists()) {
+		// crearla se añada ese numero como id de carta
+		if (fichCartas.exists()) {
+
 			try {
-				fos = new FileOutputStream(cartas, true);
+				fos = new FileOutputStream(fichCartas, true);
 				moos = new MyObjectOutputStream(fos);
-				int numeroCartas = Utils.calculoFichero(cartas);
+				int numeroCartas = Utils.calculoFichero(fichCartas);
 				do {
 					System.out.println("¿Qué tipo de carta quieres? (1- Unidad, 2- Hechizo)");
 					int tipoCarta = Utils.leerIntMinMax(1, 2);
-					Carta c = new Carta();
 					if (tipoCarta == 1)
 						c = new Unidad();
 					if (tipoCarta == 2)
 						c = new Hechizo();
-					//
-					// Revisar codigo a partir de aqui dependiendo del tipo de carta
-					//
 					c.setDatos(++numeroCartas);
-					//
-					// Añadir ArrayList de efectos a la carta
-					//
+					System.out.println("La carta ha sido creada y añadida al fichero.");
 					try {
 						moos.writeObject(c);
 					} catch (IOException e) {
 						System.out.println("Input/Output error");
 					}
-				} while (Utils.esBoolean("Quieres introducir más socios?"));
+
+				} while (Utils.esBoolean("Quieres introducir más cartas?"));
+
 			} catch (FileNotFoundException e) {
 				System.out.println("File not found.");
 			} catch (IOException e) {
@@ -523,12 +525,29 @@ public class Main {
 					System.out.println("Error al cerrar los flujos.");
 				}
 			}
-		} else {
+		} else
+
+		{
 			ObjectOutputStream oos = null;
 			try {
-				fos = new FileOutputStream(cartas);
+				fos = new FileOutputStream(fichCartas);
 				oos = new ObjectOutputStream(fos);
 				System.out.println("Fichero creado");
+				do {
+					System.out.println("¿Qué tipo de carta quieres? (1- Unidad, 2- Hechizo)");
+					int tipoCarta = Utils.leerIntMinMax(1, 2);
+					if (tipoCarta == 1)
+						c = new Unidad();
+					if (tipoCarta == 2)
+						c = new Hechizo();
+					c.setDatos(1);
+					try {
+						oos.writeObject(c);
+					} catch (IOException e) {
+						System.out.println("Input/Output error");
+					}
+					System.out.println("La carta ha sido creada y añadida al fichero.");
+				} while (Utils.esBoolean("Quieres introducir más cartas?"));
 			} catch (IOException e) {
 				System.out.println("Input/Output error");
 			} finally {
@@ -543,87 +562,154 @@ public class Main {
 		}
 	}
 
-	private static void modificarCarta(File cartas) {
+	private static void modificarCarta(File fichCartas) {
 		int opc;
 		Carta carta = null;
+		ArrayList<Carta> cartas = new ArrayList<Carta>();
 		boolean encontrado = false;
+		boolean salir = false;
 
 		System.out.println("Introduce el id de la carta que deseas modificar.");
 		int id = Utils.leerInt();
-		if (cartas.exists()) {
-			int numeroCartas = Utils.calculoFichero(cartas);
+		
+		if (fichCartas.exists()) {
 			FileInputStream fis = null;
 			ObjectInputStream ois = null;
 			ObjectOutputStream oos = null;
 
 			try {
-				ois = new ObjectInputStream(new FileInputStream(cartas));
+				ois = new ObjectInputStream(new FileInputStream(fichCartas));
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
+				System.out.println("File not found.");
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				System.out.println("Input/Output error");
 				e.printStackTrace();
 			}
 
+			//Se vuelcan los objetos del fichero a un objeto para un mejor manejo
+			volcadoFicheroAArrayListCartas(fichCartas, cartas);
 			// Se busca en el fichero una id correspondiente a la solicitada por el usuario
-			for (int i = 0; i < numeroCartas && !encontrado; i++) {
-				try {
-					carta = (Carta) ois.readObject();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			for (int i = 0; i < cartas.size() && !encontrado; i++) {
 				// Al encontrar la carta, se pregunta que dato desea modificar
-				if (carta.getId() == id) {
+				if (cartas.get(i).getId() == id) {
+
 					do {
 						System.out.println("¿Qué desea modificar?\\n\" + \"\\t1. Mana\\n\" + \"\\t2. Daño\\n\"\r\n"
 								+ "					+ \"\\t3. Descripcion\\n\" + \"\\t4. Efectos\\n\t5. Salir\\n");
-						opc = Utils.leerIntMinMax(1, 6);
+						opc = Utils.leerIntMinMax(1, 6);					
 						switch (opc) {
 						case 1:
-							// Se lee el dato introducido y se introduce en el objeto y posteriormente en el
-							// fichero
+							System.out.println("Introduzca el nuevo mana que desea asignar a la carta.");
 							int manaIntroducido = Utils.leerInt();
-							((Carta) carta).setMana(manaIntroducido);
-							try {
-								oos.writeObject(carta);
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							cartas.get(i).setMana(manaIntroducido);
+							System.out.println("Carta modificada.");
 							break;
 						case 2:
+							System.out.println("Introduzca el nuevo daño que desea asignar a la carta.");
+							int dannoIntroducido = Utils.leerInt();
+							cartas.get(i).setDanno(dannoIntroducido);
+							System.out.println("Carta modificada.");
 							break;
 						case 3:
+							System.out.println("Introduzca la nueva descripcion que desea asignar a la carta.");
+							String descripcionIntr = Utils.leerString();
+							cartas.get(i).setDescripcion(descripcionIntr);
+							System.out.println("Carta modificada.");
 							break;
 						case 4:
+							System.out.println("¿Desea añadir un efecto o modificar uno existente? (1- Añadir efecto o 2- Modificar efecto)");
+							int respuesta = Util.leerInt(1,2);
+							if (respuesta == 1) {
+								//Añadimos un efecto nuevo al ArrayList existente y almacenado en esta carta
+								String nuevoEfecto = Util.leerString();
+								cartas.get(i).getEfectos().add(nuevoEfecto);
+							}
+							if (respuesta == 2) {
+								System.out.println("¿Qué efecto desea modificar?");
+								String efectoABuscar = Util.leerString();
+								//Volcamos la lista de efectos en otro arraylist para manejarlo con mayor facilidad para recorrer
+								ArrayList<String> efectos = cartas.get(i).getEfectos();
+								boolean encontrado2 = false;
+								for (int j = 0; j < efectos.size() & !encontrado2; j++) {
+									//Si el efecto que se desea modificar coincide, se elimina y se introduce uno nuevo en su lugar
+									if (efectos.get(j).equals(efectoABuscar)) {
+										System.out.println("Efecto encontrado. Introduzca el nuevo efecto: ");
+										String efectoN = Util.leerString();
+										efectos.remove(j);
+										efectos.add(j, efectoN);
+										System.out.println("Efecto modificado.");
+										encontrado2 = true;
+									}
+								}
+								//Volcamos la lista de nuevo en el propio ArrayList de la carta
+								cartas.get(i).setEfectos(efectos);
+							}
 							break;
 
 						case 5:
-							// Modificar esCampeon (Unidad)
+							//Comprobamos que esta carta sea unidad
+							if (carta instanceof Unidad) {
+								System.out.println("¿Desea que esta unidad sea Campeón? ('S' o 'N')");	
+								Unidad unidad = (Unidad) cartas.get(i);
+								unidad.setEsCampeon(Util.esBoolean());
+								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
+								cartas.remove(i);
+								cartas.add(i, unidad);
+ 							} else {
+ 								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
+ 							}
 							break;
 						case 6:
-							// Modificar tipo (Hechizo)
+							//Comprobamos que esta carta sea hechizo
+							if (carta instanceof Hechizo) {
+								System.out.println("Introduzca el nuevo tipo del hechizo.");	
+								Hechizo hechizo = (Hechizo) cartas.get(i);
+								hechizo.setTipo(Util.leerString());
+								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
+								cartas.remove(i);
+								cartas.add(i, hechizo);
+ 							} else {
+ 								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
+ 							}
+							break;
+						case 7:
+							salir = Utils.confirmacion("Desea salir?\nS para Si\nN para No");
 							break;
 						}
-					} while (opc != 7);
+					} while (!salir);
 					encontrado = true;
 				}
+				if (!encontrado) {
+					System.out.println("No se ha encontrado la carta.");				
+				}
+				volcadoArrayListAFicheroCartas(fichCartas, cartas);
 			}
 
-			/*
-			 * String linea; try { linea = ois.readLine(); } catch (IOException e1) { //
-			 * TODO Auto-generated catch block e1.printStackTrace(); } while (linea != null)
-			 * { linea = ois.readLine(); } try { carta = (Carta) ois.readObject();
-			 * 
-			 * } catch (ClassNotFoundException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch
-			 * block e.printStackTrace(); } System.out.println(carta.toString());
-			 */
+	}else{System.out.println("Aún no existen cartas almacenadas.");}}
+
+	private static void listarCarta(File fichCartas) {
+		ArrayList<Carta> cartas = new ArrayList<Carta>();
+		boolean encontrado = false;
+		System.out.println("Introduce el id de la carta que deseas mostrar.");
+		int id = Utils.leerInt();
+		
+		if (fichCartas.exists()) {
+			//Volcamos fichero a arraylist para buscar la carta deseada (No hace falta volver a volcarlo al fichero ya que no vamos a modificar nada
+			volcadoFicheroAArrayListCartas(fichCartas, cartas);
+			for (int i = 0; i < cartas.size() && !encontrado; i++) {
+				if (cartas.get(i).getId() == id) {
+					//Dependiendo del tipo de Carta mostramos la unidad o el hechizo
+					if (cartas.get(i) instanceof Unidad) {
+						Unidad unidad = (Unidad) cartas.get(i);
+						unidad.toString();
+					}
+					if (cartas.get(i) instanceof Hechizo) {
+						Hechizo hechizo = (Hechizo) cartas.get(i);
+						hechizo.toString();
+					}
+				}
+			}
 
 		} else {
 			System.out.println("Aún no existen cartas almacenadas.");
