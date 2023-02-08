@@ -57,7 +57,6 @@ public class Jugador implements Serializable {
 	public void setDatos() {
 		System.out.println("Introduce el nickname del jugador:");
 		this.nickname = Utils.introducirCadena();
-		System.out.println("Jugador con nick " + this.nickname + " añadido correctamente\n");
 	}
 	// calcularVictorias()
 	public void calcularVictorias() {
