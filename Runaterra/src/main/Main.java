@@ -190,56 +190,61 @@ public class Main {
 		ObjectOutputStream oos = null;
 		Jugador aux = new Jugador();
 		boolean found = false;
-		// We ask for the nickname of the player that we want to add a game to
-		System.out.println("Introduzca el nick del jugador al que desea añadir la partida");
-		nickSearch = Utils.introducirCadena();
-		try {
-			ois = new ObjectInputStream(new FileInputStream(fichJugadores));
-			oos = new ObjectOutputStream(new FileOutputStream(auxFile));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// Here we go through the players file looking for the player by the nickname
-		for (int i = 0; i < max; i++) {
+		if (fichJugadores.exists()) {
+			// We ask for the nickname of the player that we want to add a game to
+			System.out.println("Introduzca el nick del jugador al que desea añadir la partida");
+			nickSearch = Utils.introducirCadena();
 			try {
-				aux = (Jugador) ois.readObject();
-			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// We look if the player has the nickname that the user is looking for
-			if (!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
-				// In case it is the desired player we add a mew game into his games and we turn
-				// a flag to stop searching
-				found = true;
-				Partida auxPart = new Partida();
-				auxPart.setDatos();
-				aux.getPartidas().put(auxPart.getIdPartida(), auxPart);
-			}
-			try {
-				oos.writeObject(aux);
+				ois = new ObjectInputStream(new FileInputStream(fichJugadores));
+				oos = new ObjectOutputStream(new FileOutputStream(auxFile));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		// Finally if there were no matches we show a error message
-		if (!found) {
-			System.err.println("No se han encontrado coincidencias");
+			// Here we go through the players file looking for the player by the nickname
+			for (int i = 0; i < max; i++) {
+				try {
+					aux = (Jugador) ois.readObject();
+				} catch (ClassNotFoundException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// We look if the player has the nickname that the user is looking for
+				if (!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
+					// In case it is the desired player we add a mew game into his games and we turn
+					// a flag to stop searching
+					found = true;
+					Partida auxPart = new Partida();
+					auxPart.setDatos();
+					aux.getPartidas().put(auxPart.getIdPartida(), auxPart);
+				}
+				try {
+					oos.writeObject(aux);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			try {
+				ois.close();
+				oos.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// Finally if there were no matches we show a error message
+			if (!found) {
+				System.err.println("No se han encontrado coincidencias");
+			} else {
+				// Otherwise we show a message to let the user know that the change has been
+				// done successfully
+				System.out.println("Partida añadida con exito");
+				fichJugadores.delete();
+				auxFile.renameTo(fichJugadores);
+			}
 		} else {
-			// Otherwise we show a message to let the user know that the change has been
-			// done successfully
-			System.out.println("Partida añadida con exito");
-			fichJugadores.delete();
-			auxFile.renameTo(fichJugadores);
-		}
-		try {
-			ois.close();
-			oos.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("No se ha encontrado el fichero");
 		}
 
 	}
