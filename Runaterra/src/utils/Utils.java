@@ -13,6 +13,29 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class Utils {
+	public static char leerChar(char opt1, char opt2) {
+		char letra=' ';
+		String cadena;
+		boolean error;
+		do{
+			error=false;
+			cadena=introducirCadena();
+			if (cadena.length()!=1){
+				System.out.println("Error, introduce un �nico caracter: ");
+				error=true;
+			}
+			else{
+				letra=cadena.charAt(0);
+				letra=Character.toUpperCase(letra);
+				if (letra!=opt1 && letra!=opt2){
+					System.out.println("Error, la opci�n introducida no es correcta, introduce "+ opt1+ " o "+ opt2);
+					error=true;
+				}
+			}
+		}while (error);
+			
+		return letra;
+	}
 	public static boolean esBoolean() {
 		String respu;
 		do {
