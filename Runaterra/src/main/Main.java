@@ -91,14 +91,12 @@ public class Main {
 		if (Utils.confirmacion("Desea filtrar las partidas?\nS para Si\nN para No")) {
 			// In case they want to filter it:
 			// Variables
-			ArrayList<Character> letras = new ArrayList<Character>(Arrays.asList('I', 'F'));
 			char opc;
 			// We ask what kind of filter does the user wants to apply
 			System.out.println(
 					"Introduzca alguna de las siguientes opciones\nI para filtrar por ID\nF para filtrar por fecha");
-			opc = Utils.leerChar(letras);
-			switch (opc) {
-			case 'I':
+			opc = Utils.leerChar('I','F');
+			if (opc == 'I') {
 				// If he wants to filter by the ID of the game
 				// Variables
 				String idSearch;
@@ -120,8 +118,7 @@ public class Main {
 						found = true;
 					}
 				}
-				break;
-			case 'F':
+			} else if (opc == 'F') {
 				// If he wants to filter it by the date of the game
 				// Variables
 				LocalDate fechSearch;
@@ -145,10 +142,8 @@ public class Main {
 						}
 					}
 				}
-				break;
-			default:
+			} else {
 				System.err.println("La opcion introducida no es valida");
-				break;
 			}
 		} else {
 			// In case the user doesn't want to filter the search, we just go through out
