@@ -47,6 +47,15 @@ public class Partida implements Serializable {
 		System.out.println("Introduzca el nickname del perdedor");
 		this.nickLosser=Utils.introducirCadena();
 	}
+	public void setDatos(String winner,String losser) {
+		// TODO Auto-generated method stub
+		System.out.println("Introduzca el id de la partida");
+		this.idPartida=Utils.introducirCadena();
+		System.out.println("Intoruzca la fecha de la partida (AAAA/MM/DD)");
+		this.fechaPartida=Utils.leerFechaAMD();
+		this.nickWinner=winner;
+		this.nickLosser=losser;
+	}
 	
 	public void mostrar() {
 		// TODO Auto-generated method stub
