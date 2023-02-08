@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import clases.Carta;
 import clases.Hechizo;
@@ -40,31 +42,41 @@ public class Main {
 				annadirJugador(fichJugadores, fichCartas);
 				break;
 			case 2:
-				modificarJugador(fichJugadores, fichCartas);
+				if (fichJugadores.exists() && fichCartas.exists())
+					modificarJugador(fichJugadores, fichCartas);
 				break;
 			case 3:
-				listarJugadores(fichJugadores);
+				if (fichJugadores.exists())
+					listarJugadores(fichJugadores);
 				break;
 			case 4:
-				eliminarJugador(fichJugadores);
+				if (fichJugadores.exists())
+					eliminarJugador(fichJugadores);
 				break;
 			case 5:
-				anniadirPartidas(fichJugadores);
+				if (fichJugadores.exists() && Utils.calculoFichero(fichJugadores) >= 3)
+					anniadirPartidas(fichJugadores);
 				break;
 			case 6:
-				listarPartidas(fichJugadores);
+				if (fichJugadores.exists())
+					listarPartidas(fichJugadores);
 				break;
 			case 7:
-				aniadirCarta(fichCartas);
+				if (fichCartas.exists())
+					aniadirCarta(fichCartas);
 				break;
 			case 8:
-				modificarCarta(fichCartas);
+				if (fichCartas.exists())
+					modificarCarta(fichCartas);
 				break;
 			case 9:
-				listarCarta(fichCartas);
+				if (fichCartas.exists())
+					listarCarta(fichCartas);
 				break;
 			case 10:
-				break;
+				if (fichCartas.exists())
+
+					break;
 			case 11:
 				salir = Utils.confirmacion("Desea salir?\nS para Si\nN para No");
 				break;
@@ -79,14 +91,8 @@ public class Main {
 		// Variables
 		int max = Utils.calculoFichero(fichJugadores);
 		boolean found = false;
-		ObjectInputStream ois = null;
-		Jugador aux = new Jugador();
-		try {
-			ois = new ObjectInputStream(new FileInputStream(fichJugadores));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Map<String, Partida> partidas = new HashMap<String, Partida>();
+		volcadoFicheroAMapPartidas(fichJugadores, partidas);
 		// We ask if the user wants to filter the search or not
 		if (Utils.confirmacion("Desea filtrar las partidas?\nS para Si\nN para No")) {
 			// In case they want to filter it:
@@ -95,7 +101,7 @@ public class Main {
 			// We ask what kind of filter does the user wants to apply
 			System.out.println(
 					"Introduzca alguna de las siguientes opciones\nI para filtrar por ID\nF para filtrar por fecha");
-			opc = Utils.leerChar('I','F');
+			opc = Utils.leerChar('I', 'F');
 			if (opc == 'I') {
 				// If he wants to filter by the ID of the game
 				// Variables
@@ -103,20 +109,11 @@ public class Main {
 				// We ask for the game ID
 				System.out.println("Introduzca la ID de la partida");
 				idSearch = Utils.introducirCadena();
-				// Now we go through our file of players
-				for (int i = 0; i < max && !found; i++) {
-					try {
-						aux = (Jugador) ois.readObject();
-					} catch (ClassNotFoundException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					// IF the player has a game with the desired ID we show it, and since IDs are
-					// unique we use a flag to stop the search
-					if (aux.getPartidas().containsKey(idSearch)) {
-						aux.getPartidas().get(idSearch).mostrar();
-						found = true;
-					}
+				// We look in a HashMap where we have overthrown our players games, we ask if we
+				// have the desired ID and in case we do we just show the game
+				if (partidas.containsKey(idSearch)) {
+					partidas.get(idSearch).mostrar();
+					found = true;
 				}
 			} else if (opc == 'F') {
 				// If he wants to filter it by the date of the game
@@ -125,41 +122,24 @@ public class Main {
 				// We ask for the date of the game
 				System.out.println("Introduzca la fecha (AAAA/MM/DD) de la partida");
 				fechSearch = Utils.leerFechaAMD();
-				// Now we go through our file of players
-				for (int i = 0; i < max; i++) {
-					try {
-						aux = (Jugador) ois.readObject();
-					} catch (ClassNotFoundException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					// If the player has a game on the asked date
-					for (Partida e : aux.getPartidas().values()) {
-						if (e.getFechaPartida().equals(fechSearch)) {
-							// We show the game
-							e.mostrar();
-							found = true;
-						}
+				// We look in a HashMap where we have overthrown our players games, we iterate
+				// over our HashMap looking for games that has the desired date
+				for (Partida e : partidas.values()) {
+					if (e.getFechaPartida().equals(fechSearch)) {
+						// We show the game
+						e.mostrar();
+						found = true;
 					}
 				}
+
 			} else {
 				System.err.println("La opcion introducida no es valida");
 			}
 		} else {
-			// In case the user doesn't want to filter the search, we just go through out
-			// players file
-			for (int i = 0; i < max; i++) {
-				try {
-					aux = (Jugador) ois.readObject();
-				} catch (ClassNotFoundException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// And here we go through every player games showing all of them
-				for (Partida e : aux.getPartidas().values()) {
-					e.mostrar();
-					found = true;
-				}
+			// And here we go through every players games showing all of them
+			for (Partida e : partidas.values()) {
+				e.mostrar();
+				found = true;
 			}
 		}
 		// In case there were not matches or not even a single game we show an error
@@ -167,81 +147,68 @@ public class Main {
 		if (!found) {
 			System.err.println("No se han encontrado coincidencias");
 		}
-		try {
-			ois.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	private static void anniadirPartidas(File fichJugadores) {
 		// TODO Auto-generated method stub
 		// Variables
-		File auxFile = new File("auxFile.dat");
-		int max = Utils.calculoFichero(fichJugadores);
-		String nickSearch;
-		ObjectInputStream ois = null;
+		String winner, loser;
+		Partida aux = new Partida();
+		Map<String, Jugador> jugadores = new HashMap<String, Jugador>();
+		boolean error = false;
+		// We overthrow the file into a HashMap
+		volcadoFicheroAMapJugadores(fichJugadores, jugadores);
+		// Now we check if we got the nickname of the winner and we ask for it until we
+		// get a right nickname
+		do {
+			error = false;
+			System.out.println("Introduzca el nickname del ganador");
+			winner = Utils.introducirCadena();
+			if (!jugadores.containsKey(winner)) {
+				error = true;
+				System.err.println("Por favor compruebe que el jugador exista");
+			}
+		} while (error);
+		// We do the same for the nickname of the loser but in addition we check if it
+		// is the same nickname as the winner, in case they are the same we ask for the
+		// loser nickname again
+		do {
+			error = false;
+			System.out.println("Introduzca el nickname del perdedor");
+			loser = Utils.introducirCadena();
+			if (loser.equalsIgnoreCase(winner) || !jugadores.containsKey(loser)) {
+				error = true;
+				System.err.println(
+						"Por favor compruebe que el nickname es diferente del ganador y que el jugador exista");
+			}
+		} while (error);
+		// Now we fulfill all the data needed for a game to be created
+		aux.setDatos(winner, loser);
+		// Now we add the game to both the history of the winner and the loser
+		jugadores.get(winner).getPartidas().put(aux.getIdPartida(), aux);
+		jugadores.get(loser).getPartidas().put(aux.getIdPartida(), aux);
+		// Now we overwrite our file to save the changes
 		ObjectOutputStream oos = null;
-		Jugador aux = new Jugador();
-		boolean found = false;
-		if (fichJugadores.exists()) {
-			// We ask for the nickname of the player that we want to add a game to
-			System.out.println("Introduzca el nick del jugador al que desea añadir la partida");
-			nickSearch = Utils.introducirCadena();
-			try {
-				ois = new ObjectInputStream(new FileInputStream(fichJugadores));
-				oos = new ObjectOutputStream(new FileOutputStream(auxFile));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// Here we go through the players file looking for the player by the nickname
-			for (int i = 0; i < max; i++) {
-				try {
-					aux = (Jugador) ois.readObject();
-				} catch (ClassNotFoundException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// We look if the player has the nickname that the user is looking for
-				if (!found && aux.getNickname().equalsIgnoreCase(nickSearch)) {
-					// In case it is the desired player we add a mew game into his games and we turn
-					// a flag to stop searching
-					found = true;
-					Partida auxPart = new Partida();
-					auxPart.setDatos();
-					aux.getPartidas().put(auxPart.getIdPartida(), auxPart);
-				}
-				try {
-					oos.writeObject(aux);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			try {
-				ois.close();
-				oos.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// Finally if there were no matches we show a error message
-			if (!found) {
-				System.err.println("No se han encontrado coincidencias");
-			} else {
-				// Otherwise we show a message to let the user know that the change has been
-				// done successfully
-				System.out.println("Partida añadida con exito");
-				fichJugadores.delete();
-				auxFile.renameTo(fichJugadores);
-			}
-		} else {
-			System.err.println("No se ha encontrado el fichero");
+		try {
+			oos = new ObjectOutputStream(new FileOutputStream(fichJugadores));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
+		for (Jugador a : jugadores.values()) {
+			try {
+				oos.writeObject(a);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void annadirJugador(File fichJugadores, File fichCartas) {
@@ -474,7 +441,7 @@ public class Main {
 		int opcion = Utils.leerInt(
 				"¿Quieres listar jugador/es por su NICKNAME o por el número de VICTORIAS? (1 NICKNAME / 2 VICTORIAS / 0 CANCELAR):",
 				0, 2);
-		
+
 		if (opcion == 1) {
 			String wNickname = Utils.leerString("Introduce el nickname del jugador del que quieres listar sus datos:");
 
@@ -570,11 +537,11 @@ public class Main {
 
 			if (borrar == 1) {
 				if (fichJugadores.delete() == false) {
-					
+
 					System.out.println("No ha sido posible eliminar el fichero\n");
-				fichJugadores.delete();
-			}
-				if (fichAux.renameTo(fichJugadores)== false) {
+					fichJugadores.delete();
+				}
+				if (fichAux.renameTo(fichJugadores) == false) {
 					System.out.println("No ha sido posible renombrar el fichero\n");
 					fichAux.renameTo(fichJugadores);
 				}
@@ -582,6 +549,56 @@ public class Main {
 		} else
 			System.out.println("Aún no hay ningún jugador en el fichero\n");
 
+	}
+
+	private static void volcadoFicheroAMapPartidas(File fichJugadores, Map<String, Partida> partidas) {
+		FileInputStream fis = null;
+		ObjectInputStream ois = null;
+		try {
+			fis = new FileInputStream(fichJugadores);
+			ois = new ObjectInputStream(fis);
+			Jugador aux = (Jugador) ois.readObject();
+			while (aux != null) {
+				for (Partida e : aux.getPartidas().values()) {
+					if (!partidas.containsKey(e.getIdPartida())) {
+						partidas.put(e.getIdPartida(), e);
+					}
+				}
+				aux = (Jugador) ois.readObject();
+			}
+		} catch (EOFException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			ois.close();
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void volcadoFicheroAMapJugadores(File fichJugadores, Map<String, Jugador> jugadores) {
+		FileInputStream fis = null;
+		ObjectInputStream ois = null;
+		try {
+			fis = new FileInputStream(fichJugadores);
+			ois = new ObjectInputStream(fis);
+			Jugador aux = (Jugador) ois.readObject();
+			while (aux != null) {
+				jugadores.put(aux.getNickname(), aux);
+				aux = (Jugador) ois.readObject();
+			}
+		} catch (EOFException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			ois.close();
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void volcadoFicheroAArrayListJugadores(File fichJugadores, ArrayList<Jugador> jugadores) {
@@ -681,8 +698,6 @@ public class Main {
 		}
 	}
 
-
-
 	private static void aniadirCarta(File fichCartas) {
 		FileOutputStream fos = null;
 		ObjectOutputStream moos = null;
@@ -772,7 +787,7 @@ public class Main {
 
 		System.out.println("Introduce el id de la carta que deseas modificar.");
 		int id = Utils.leerInt();
-		
+
 		if (fichCartas.exists()) {
 			FileInputStream fis = null;
 			ObjectInputStream ois = null;
@@ -788,7 +803,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			//Se vuelcan los objetos del fichero a un objeto para un mejor manejo
+			// Se vuelcan los objetos del fichero a un objeto para un mejor manejo
 			volcadoFicheroAArrayListCartas(fichCartas, cartas);
 			// Se busca en el fichero una id correspondiente a la solicitada por el usuario
 			for (int i = 0; i < cartas.size() && !encontrado; i++) {
@@ -798,7 +813,7 @@ public class Main {
 					do {
 						System.out.println("¿Qué desea modificar?\\n\" + \"\\t1. Mana\\n\" + \"\\t2. Daño\\n\"\r\n"
 								+ "					+ \"\\t3. Descripcion\\n\" + \"\\t4. Efectos\\n\t5. Salir\\n");
-						opc = Utils.leerIntMinMax(1, 6);					
+						opc = Utils.leerIntMinMax(1, 6);
 						switch (opc) {
 						case 1:
 							System.out.println("Introduzca el nuevo mana que desea asignar a la carta.");
@@ -819,21 +834,24 @@ public class Main {
 							System.out.println("Carta modificada.");
 							break;
 						case 4:
-							System.out.println("¿Desea añadir un efecto o modificar uno existente? (1- Añadir efecto o 2- Modificar efecto)");
-							int respuesta = Utils.leerInt(1,2);
+							System.out.println(
+									"¿Desea añadir un efecto o modificar uno existente? (1- Añadir efecto o 2- Modificar efecto)");
+							int respuesta = Utils.leerInt(1, 2);
 							if (respuesta == 1) {
-								//Añadimos un efecto nuevo al ArrayList existente y almacenado en esta carta
+								// Añadimos un efecto nuevo al ArrayList existente y almacenado en esta carta
 								String nuevoEfecto = Utils.leerString();
 								cartas.get(i).getEfectos().add(nuevoEfecto);
 							}
 							if (respuesta == 2) {
 								System.out.println("¿Qué efecto desea modificar?");
 								String efectoABuscar = Utils.leerString();
-								//Volcamos la lista de efectos en otro arraylist para manejarlo con mayor facilidad para recorrer
+								// Volcamos la lista de efectos en otro arraylist para manejarlo con mayor
+								// facilidad para recorrer
 								ArrayList<String> efectos = cartas.get(i).getEfectos();
 								boolean encontrado2 = false;
 								for (int j = 0; j < efectos.size() & !encontrado2; j++) {
-									//Si el efecto que se desea modificar coincide, se elimina y se introduce uno nuevo en su lugar
+									// Si el efecto que se desea modificar coincide, se elimina y se introduce uno
+									// nuevo en su lugar
 									if (efectos.get(j).equals(efectoABuscar)) {
 										System.out.println("Efecto encontrado. Introduzca el nuevo efecto: ");
 										String efectoN = Utils.leerString();
@@ -843,36 +861,36 @@ public class Main {
 										encontrado2 = true;
 									}
 								}
-								//Volcamos la lista de nuevo en el propio ArrayList de la carta
+								// Volcamos la lista de nuevo en el propio ArrayList de la carta
 								cartas.get(i).setEfectos(efectos);
 							}
 							break;
 
 						case 5:
-							//Comprobamos que esta carta sea unidad
+							// Comprobamos que esta carta sea unidad
 							if (carta instanceof Unidad) {
-								System.out.println("¿Desea que esta unidad sea Campeón? ('S' o 'N')");	
+								System.out.println("¿Desea que esta unidad sea Campeón? ('S' o 'N')");
 								Unidad unidad = (Unidad) cartas.get(i);
 								unidad.setEsCampeon(Utils.esBoolean());
-								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
+								// Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
 								cartas.remove(i);
 								cartas.add(i, unidad);
- 							} else {
- 								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
- 							}
+							} else {
+								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
+							}
 							break;
 						case 6:
-							//Comprobamos que esta carta sea hechizo
+							// Comprobamos que esta carta sea hechizo
 							if (carta instanceof Hechizo) {
-								System.out.println("Introduzca el nuevo tipo del hechizo.");	
+								System.out.println("Introduzca el nuevo tipo del hechizo.");
 								Hechizo hechizo = (Hechizo) cartas.get(i);
 								hechizo.setTipo(Utils.leerString());
-								//Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
+								// Quitamos la carta previa y introducimos la nueva con los cambios pertinentes
 								cartas.remove(i);
 								cartas.add(i, hechizo);
- 							} else {
- 								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
- 							}
+							} else {
+								System.out.println("Esta carta no es una unidad, por lo tanto no puede ser Campeon.");
+							}
 							break;
 						case 7:
 							salir = Utils.confirmacion("Desea salir?\nS para Si\nN para No");
@@ -882,25 +900,29 @@ public class Main {
 					encontrado = true;
 				}
 				if (!encontrado) {
-					System.out.println("No se ha encontrado la carta.");				
+					System.out.println("No se ha encontrado la carta.");
 				}
 				volcadoArrayListAFicheroCartas(fichCartas, cartas);
 			}
 
-	}else{System.out.println("Aún no existen cartas almacenadas.");}}
+		} else {
+			System.out.println("Aún no existen cartas almacenadas.");
+		}
+	}
 
 	private static void listarCarta(File fichCartas) {
 		ArrayList<Carta> cartas = new ArrayList<Carta>();
 		boolean encontrado = false;
 		System.out.println("Introduce el id de la carta que deseas mostrar.");
 		int id = Utils.leerInt();
-		
+
 		if (fichCartas.exists()) {
-			//Volcamos fichero a arraylist para buscar la carta deseada (No hace falta volver a volcarlo al fichero ya que no vamos a modificar nada
+			// Volcamos fichero a arraylist para buscar la carta deseada (No hace falta
+			// volver a volcarlo al fichero ya que no vamos a modificar nada
 			volcadoFicheroAArrayListCartas(fichCartas, cartas);
 			for (int i = 0; i < cartas.size() && !encontrado; i++) {
 				if (cartas.get(i).getId() == id) {
-					//Dependiendo del tipo de Carta mostramos la unidad o el hechizo
+					// Dependiendo del tipo de Carta mostramos la unidad o el hechizo
 					if (cartas.get(i) instanceof Unidad) {
 						Unidad unidad = (Unidad) cartas.get(i);
 						unidad.toString();
@@ -915,5 +937,51 @@ public class Main {
 		} else {
 			System.out.println("Aún no existen cartas almacenadas.");
 		}
+	}
+
+	public static boolean buscarNickname(File fichJugadores, String nickName) {
+		boolean found = false;
+		ObjectInputStream ois = null;
+		if (fichJugadores.exists()) {
+			Jugador aux = new Jugador();
+			int max = Utils.calculoFichero(fichJugadores);
+			try {
+				ois = new ObjectInputStream(new FileInputStream(fichJugadores));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			for (int i = 0; i < max; i++) {
+				try {
+					aux = (Jugador) ois.readObject();
+				} catch (ClassNotFoundException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (aux.getNickname().equalsIgnoreCase(nickName)) {
+					found = true;
+				}
+			}
+			try {
+				ois.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return found;
+	}
+
+	public static boolean buscarNickname(File fichJugadores, ArrayList<Jugador> jugadores, String wNickname) {
+		boolean encontrado = false;
+
+		volcadoFicheroAArrayListJugadores(fichJugadores, jugadores);
+
+		for (int i = 0; i < jugadores.size() && !encontrado; i++) {
+			if (jugadores.get(i).getNickname().equalsIgnoreCase(wNickname))
+				encontrado = true;
+		}
+
+		return encontrado;
 	}
 }
