@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import utils.Utils;
 
 public class Carta implements Serializable {
-	protected int id;
+	protected int id = 1;
 	protected int mana;
 	protected int danno;
 	protected String descripcion;
