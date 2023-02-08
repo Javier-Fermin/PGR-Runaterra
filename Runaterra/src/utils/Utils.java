@@ -371,7 +371,7 @@ public class Utils {
 				}
 
 			} catch (EOFException e1) {
-				System.out.println("Has acabado de leer, tienes " + cont + " objetos");
+				
 
 			} catch (Exception e2) {
 				e2.printStackTrace();
