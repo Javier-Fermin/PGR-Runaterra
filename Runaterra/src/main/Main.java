@@ -40,7 +40,7 @@ public class Main {
 				annadirJugador(fichJugadores, fichCartas);
 				break;
 			case 2:
-				if (fichJugadores.exists() && fichCartas.exists())
+				if (fichJugadores.exists())
 					modificarJugador(fichJugadores, fichCartas);
 				break;
 			case 3:
