@@ -111,9 +111,9 @@ public class Main {
 				} else
 					System.out.println("Ya existe un jugador con nickname " + wNickname + "\n");
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 		} else {
 			try {
@@ -124,9 +124,9 @@ public class Main {
 				jug.setDatos();
 				oos.writeObject(jug);
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 		}
 
@@ -169,11 +169,11 @@ public class Main {
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
 					} catch (EOFException e) {
-						e.printStackTrace();
+						System.err.println("Ha ocurrido un error inesperado");
 					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
+						System.err.println("Ha ocurrido un error inesperado");
 					} catch (IOException e) {
-						e.printStackTrace();
+						System.err.println("Ha ocurrido un error inesperado");
 					}
 				} else
 					// Mensaje en caso de que decida no añadir ninguna carta
@@ -190,7 +190,7 @@ public class Main {
 			oos.close();
 			fos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 
@@ -483,11 +483,11 @@ public class Main {
 				oos.close();
 				ois.close();
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 
 			if (borrar == 1) {
@@ -554,7 +554,7 @@ public class Main {
 			oos = new ObjectOutputStream(new FileOutputStream(fichJugadores));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 		for (Jugador a : jugadores.values()) {
 			try {
@@ -568,7 +568,7 @@ public class Main {
 			oos.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 	
@@ -1034,13 +1034,13 @@ public class Main {
 			}
 		} catch (EOFException e) {
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 		try {
 			ois.close();
 			fis.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 
@@ -1062,14 +1062,14 @@ public class Main {
 		} catch (EOFException e) {
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 
 		try {
 			ois.close();
 			fis.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 
@@ -1079,21 +1079,21 @@ public class Main {
 		try {
 			oos = new ObjectOutputStream(new FileOutputStream(fichJugadores));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 		for (Jugador j : jugadores) {
 			try {
 				oos.writeObject(j);
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 		}
 		try {
 			oos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 
@@ -1103,21 +1103,21 @@ public class Main {
 		try {
 			oos = new ObjectOutputStream(new FileOutputStream(fichCartas));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 		for (Carta j : cartas) {
 			try {
 				oos.writeObject(j);
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 		}
 		try {
 			oos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 
@@ -1139,13 +1139,13 @@ public class Main {
 			}
 		} catch (EOFException e) {
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 		try {
 			ois.close();
 			fis.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 
@@ -1163,13 +1163,13 @@ public class Main {
 			}
 		} catch (EOFException e) {
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 		try {
 			ois.close();
 			fis.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Ha ocurrido un error inesperado");
 		}
 	}
 	
@@ -1196,14 +1196,14 @@ public class Main {
 				ois = new ObjectInputStream(new FileInputStream(fichJugadores));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 			for (int i = 0; i < max; i++) {
 				try {
 					aux = (Jugador) ois.readObject();
 				} catch (ClassNotFoundException | IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.err.println("Ha ocurrido un error inesperado");
 				}
 				if (aux.getNickname().equalsIgnoreCase(nickName)) {
 					found = true;
@@ -1213,7 +1213,7 @@ public class Main {
 				ois.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.err.println("Ha ocurrido un error inesperado");
 			}
 		}
 		return found;
