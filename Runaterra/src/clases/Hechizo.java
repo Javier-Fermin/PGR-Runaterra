@@ -24,6 +24,7 @@ public class Hechizo extends Carta {
 
 	@Override
 	public String toString() {
+		super.toString();
 		return "Hechizo [tipo=" + tipo + "]";
 	}
 

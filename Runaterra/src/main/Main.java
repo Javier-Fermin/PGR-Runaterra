@@ -60,7 +60,7 @@ public class Main {
 					listarPartidas(fichJugadores);
 				break;
 			case 7:
-				if (fichCartas.exists())
+				
 					aniadirCarta(fichCartas);
 				break;
 			case 8:
