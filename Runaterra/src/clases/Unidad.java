@@ -44,4 +44,14 @@ public class Unidad extends Carta {
 	public void setVida(int vida) {
 		this.vida = vida;
 	}
+	
+	public void mostrar() {
+		super.mostrar();
+		System.out.println("La unidad tiene una salud de: "+this.vida);
+		if(this.esCampeon) {
+			System.out.println("La unidad es un campeón"+"\n");
+		}else {
+			System.out.println("La unidad no es un campeón"+"\n");
+		}
+	}
 }

@@ -33,4 +33,9 @@ public class Hechizo extends Carta {
 	    System.out.println("Introduce el tipo de hechizo: ");
 	    this.tipo = Utils.introducirCadena();
 	}
+	
+	public void mostrar() {
+		super.mostrar();
+		System.out.println("El tipo de hechizo es: "+this.tipo+"\n");
+	}
 }

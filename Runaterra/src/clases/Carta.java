@@ -99,6 +99,12 @@ public class Carta implements Serializable {
 		}
 	}
 
+	public void mostrar() {
+		System.out.println("ID de la carta: "+this.id);
+		System.out.println("Coste de mana de la carta: "+this.mana);
+		System.out.println("Daño de la carta: "+this.danno);
+		System.out.println("Descripcion de la carta: "+this.descripcion);
+	}
 	@Override
 	public String toString() {
 		return "Carta [id=" + id + ", mana=" + mana + ", danno=" + danno + ", descripcion=" + descripcion + ", efectos="
